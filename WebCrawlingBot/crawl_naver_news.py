@@ -3,8 +3,31 @@ from bs4 import BeautifulSoup as bs
 from urllib.request import urlopen
 import requests
 import hashlib
+import MySQLdb
 
-def search_news(drama_name):
+def connect_to_db(drama_name):
+    global connection
+    global cursor
+
+    connection = MySQLdb.connect(
+        user="scrapingman",
+        passwd="myPassword-1",
+        host="localhost",
+        db="scrapingdata",
+        charset="utf8")
+
+    cursor=connection.cursor()
+
+    drama_id = cursor.execute("SELECT id from drama_info where drama_name = %s", [drama_name])
+    return drama_id
+
+
+def unconnect_to_db():
+    connection.commit()
+    connection.close()
+
+
+def search_news(drama_name, drama_id):
     links = []
     hdr = {'User-Agent': 'Mozilla/5.0'}
     url = 'https://search.naver.com/search.naver?where=news&sm=ent_nex&ie=utf8&query='+drama_name
@@ -49,5 +72,8 @@ def get_each_news(links):
 
 
 if __name__ == "__main__":
-    links = search_news('비밀의숲')
+    drama_name = "비밀의숲2"
+    drama_id = connect_to_db(drama_name)
+    links = search_news(drama_name, drama_id)
     get_each_news(links)
+    unconnect_to_db()
