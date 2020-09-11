@@ -45,7 +45,7 @@ def search_news(drama_name, drama_id):
     return links
 
 
-def get_each_news(links):
+def get_each_news(links, drama_id):
     browser = webdriver.Chrome('./chromedriver')
     for link in links:
         browser.get(link)
@@ -63,17 +63,31 @@ def get_each_news(links):
             title = main.select_one('h2.end_tit').get_text().strip()
             written_time = main.select_one('div.article_info > span.author > em').get_text()
             body_text = main.select_one('div.end_body_wrp > div#articeBody').get_text().strip()
-            recommends = main.select_one('div.end_btn > div.tomain.as_addinfo > div#toMainContainer > a > em.u_cnt._count').get_text()
+            recommends = int(main.select_one('div.end_btn > div.tomain.as_addinfo > div#toMainContainer > a > em.u_cnt._count').get_text())
             # print(url_hash)
             # print(title)
             # print(written_time)
-            print(body_text)
+            # print(body_text)
             # print(recommends)
+            written_time = written_time.replace('.', '-', 2).replace('.', "") + ":00"
+            timestamp_list = written_time.split(' ')
+            if (timestamp_list[1] == "오후"):
+                time_list = timestamp_list[2].split(":")
+                time_list[0] = str(int(time_list[0])+12)
+                timestamp_list[2] = ":".join(time_list)
+                
+            written_time = timestamp_list[0] + ' ' + timestamp_list[2]
+            news_tuple = (drama_id, url_hash, title, written_time, body_text, recommends)
+
+            try:
+                cursor.execute("INSERT INTO naver_news(id, url_hash, title, modified_time, body_text, recommends) values (%s, %s, %s, %s, %s, %s)", news_tuple)
+            except Exception as e:
+                print(e)
 
 
 if __name__ == "__main__":
     drama_name = "비밀의숲2"
     drama_id = connect_to_db(drama_name)
     links = search_news(drama_name, drama_id)
-    get_each_news(links)
+    get_each_news(links, drama_id)
     unconnect_to_db()
