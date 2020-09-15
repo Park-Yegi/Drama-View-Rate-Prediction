@@ -24,8 +24,8 @@ def crawl_view_rate(drama_name, drama_id):
                 episode = row.select_one('td > a').get_text()
                 view_rate = row.select('td')[2].get_text()
                 error = save_to_db([drama_id, episode, view_rate, broadcasting_date])
-                # if (error != None):
-                #     break
+                if (error != None):
+                    break
         except Exception as e:
             print(drama_name, drama_id)
             print(e)

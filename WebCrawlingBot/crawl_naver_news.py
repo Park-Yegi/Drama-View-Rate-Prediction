@@ -5,6 +5,8 @@ import requests
 import hashlib
 import MySQLdb
 import pymysql
+import TimeoutException
+import signal
 
 def connect_to_db():
     global connection
@@ -26,33 +28,22 @@ def unconnect_to_db():
 
 
 def search_news(drama_name, drama_id, start):
-    print("===== Search naver news ", drama_name, " pageNo=", start, " =====")
-    links = []
-    hdr = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        print("===== Search naver news ", drama_name, " pageNo=", start, " =====")
+        links = []
+        hdr = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36', 'Content-Type': 'application/json; charset=utf-8'}
 
-    url = 'https://search.naver.com/search.naver?&where=news&query=' + drama_name +'&sm=tab_pge&sort=0&start=' + str(start)
-    response = requests.get(url, params=hdr)
-    source = response.text
-    data = bs(source, 'html.parser')
-    body = data.find('body')
-    a_tags = body.select('div#wrap > div#container > div#content > div#main_pack > div.news.mynews.section._prs_nws > ul.type01 > li > dl > dd.txt_inline > a._sp_each_url')
-    for a_tag in a_tags:
-        links.append(a_tag.attrs['href'])
-
-    # ### 첫 페이지만 크롤링 ###
-    # url = 'https://search.naver.com/search.naver?where=news&sm=ent_nex&ie=utf8&query='+drama_name
-    # # browser = webdriver.Chrome('./chromedriver')
-    # # browser.get(url)
-    # response = requests.get(url, params=hdr)
-    # # source = browser.page_source
-    # source = response.text
-    # data = bs(source, 'html.parser')
-    # body = data.find('body')
-    # a_tags = body.select('div#wrap > div#container > div#content > div#main_pack > div.news.mynews.section._prs_nws > ul.type01 > li > dl > dd.txt_inline > a._sp_each_url')
-    # for a_tag in a_tags:
-    #     links.append(a_tag.attrs['href'])
-
-    # print(links)
+        url = 'https://search.naver.com/search.naver?&where=news&query=' + drama_name +'&sm=tab_pge&sort=0&start=' + str(start)
+        response = requests.get(url, params=hdr)
+        source = response.text
+        data = bs(source, 'html.parser')
+        body = data.find('body')
+        a_tags = body.select('div#wrap > div#container > div#content > div#main_pack > div.news.mynews.section._prs_nws > ul.type01 > li > dl > dd.txt_inline > a._sp_each_url')
+        for a_tag in a_tags:
+            links.append(a_tag.attrs['href'])
+    
+    except Exception as e:
+        print(e)
     
     return links
 
@@ -67,9 +58,18 @@ def get_each_news(links, drama_id):
             print("Already crawled news")
             continue
         # browser.get(link)
-        # hdr = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(link, params=hdr)
         # source = browser.page_source
+        
+        
+        try:
+            signal.signal(signal.SIGALRM, TimeoutException.alarm_handler)
+            signal.alarm(10)
+            response = requests.get(link, params=hdr)
+            signal.alarm(0)
+        except TimeoutException.TimeoutException as e:
+            print(e, link)
+            continue
+
         source = response.text
         data = bs(source, 'html.parser')
         body = data.find('body')

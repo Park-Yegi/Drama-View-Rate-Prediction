@@ -30,10 +30,18 @@ def save_to_db():
         json_data = json.load(json_file)
 
         json_array = json_data['drama2020']
-        # print(json_array)
-
         for i in range(len(json_array)):
-            cursor.execute("INSERT INTO drama_info(drama_name, channel, start_time, start_day) values (%s, %s, %s, %s)", (json_array[i]['drama_name'], json_array[i]['channel'], json_array[i]['start_time'], json_array[i]['start_day']))
+            try:
+                cursor.execute("INSERT INTO drama_info(drama_name, channel, start_time, start_day) values (%s, %s, %s, %s)", (json_array[i]['drama_name'], json_array[i]['channel'], json_array[i]['start_time'], json_array[i]['start_day']))
+            except Exception as e:
+                print(e)
+        
+        json_array = json_data['drama2019']
+        for i in range(len(json_array)):
+            try:
+                cursor.execute("INSERT INTO drama_info(drama_name, channel, start_time, start_day) values (%s, %s, %s, %s)", (json_array[i]['drama_name'], json_array[i]['channel'], json_array[i]['start_time'], json_array[i]['start_day']))
+            except Exception as e:
+                print(e)
 
 
 if __name__ == "__main__":
