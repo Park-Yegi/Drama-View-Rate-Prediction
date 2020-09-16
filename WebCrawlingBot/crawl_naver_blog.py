@@ -76,7 +76,7 @@ def get_each_article(links, drama_id):
             print("===== Start to crawl ", link, " =====")
             url_hash = hashlib.sha256(link.encode()).hexdigest()
             if (cursor.execute("SELECT title FROM naver_blog WHERE url_hash=%s", [url_hash]) != 0):
-                print("Already crawled news")
+                print("Already crawled blog")
                 continue
 
             browser.get(link)
@@ -133,7 +133,7 @@ def get_each_article(links, drama_id):
 
 if __name__ == "__main__":
     connect_to_db()
-    cursor.execute("SELECT id, drama_name from drama_info order by drama_name desc")
+    cursor.execute("SELECT id, drama_name from drama_info order by drama_name")
     drama_id_name_list = cursor.fetchall()
 
     for drama in drama_id_name_list:
