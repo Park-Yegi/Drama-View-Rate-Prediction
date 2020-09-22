@@ -31,6 +31,9 @@ if __name__ == "__main__":
     cursor.execute("SELECT body_text from naver_news where id=13")
     # cursor.execute("SELECT body_text from naver_news where news_id=940")
 
+    corpus_fname = './corpus_mecab.txt'
+    corpus_file = open(corpus_fname, 'w')
+
     for i, news in enumerate(cursor):
         news_str = news[0].decode('utf-8')
         # print(news_str)
@@ -94,7 +97,9 @@ if __name__ == "__main__":
         news_str = re.sub(re.compile('\<'), '', news_str)
         news_str = re.sub(re.compile('■'), '', news_str)
         news_str = re.sub(re.compile('◆'), '', news_str)
-
+        news_str = re.sub(re.compile("'"), '', news_str)
+        news_str = re.sub(re.compile('‘'), '', news_str)
+        news_str = re.sub(re.compile('’'), '', news_str)
         news_str = re.sub(DATE_PATTERN, ' ', news_str)
         # news_str = re.sub(re.compile("\.", re.UNICODE), '.\n', news_str)
         news_str = re.sub(EMPTY_PARENTHESIS, ' ', news_str)
@@ -102,10 +107,15 @@ if __name__ == "__main__":
         news_str = re.sub(MULTIPLE_SPACES, '', news_str)
         news_str = re.sub(re.compile('\\xa0'), '', news_str)
         news_str = re.sub(re.compile("저작권자 SPOTV NEWS 무단전재 및 재배포 금지"), ' ', news_str)
+
+
         news_str = news_str.strip()
+        # print(news_str)
 
         tokenizer = Mecab()
-        print(tokenizer.morphs(news_str))
+        tokens = tokenizer.morphs(news_str)
+        corpus_file.writelines("%s " % token for token in tokens)
+        corpus_file.write("\n")
 
 
         ####### JUST ONE NEWS FOR TEST ########
@@ -114,3 +124,4 @@ if __name__ == "__main__":
         
     
     connection.close()
+    corpus_file.close()
