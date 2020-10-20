@@ -48,9 +48,14 @@ drama_list = body.select("div#fix_wrap > div#wrap > div#container > div#content_
 
 for i in range(1, page_number+1):
     for drama in drama_list:
+        role = None
         title_wrap = drama.select_one("span.tit_wrap")
         title = title_wrap.get_text()
         link = title_wrap.select_one("a").attrs['href']
+        status_list = drama.select("span.dsc_area > span.status_sub")
+        if ('(' in status_list[0].get_text()):
+            role = status_list[0].get_text().split('(')[1].replace(')','').strip()
+
         response = requests.get(link, params=hdr)
         sub_source = response.text
         sub_data = bs(sub_source, 'html.parser')
@@ -72,7 +77,7 @@ for i in range(1, page_number+1):
             elif (info.select_one('dt').get_text() == '시청률'):
                 max_view_rate = info.select_one('dd > em').get_text().replace('%', '')
         # print((title, channel, start_date, max_view_rate))
-        all_drama_list.append((title, channel, start_date, max_view_rate))
+        all_drama_list.append((title, channel, start_date, max_view_rate, role))
         
 
     if (i != page_number):  
