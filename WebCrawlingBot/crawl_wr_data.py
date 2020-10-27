@@ -8,14 +8,14 @@ import traceback
 
 
 browser = webdriver.Chrome('./chromedriver')
-url_file = open('../actor_link.csv', 'r', encoding='utf-8')
+url_file = open('../wr_link.csv', 'r', encoding='utf-8')
 rdr = csv.reader(url_file)
-award_file = open('../all_actor_award.csv', 'w', encoding='utf-8')
+award_file = open('../all_wr_award.csv', 'w', encoding='utf-8')
 award_wr = csv.writer(award_file)
-drama_file = open('../all_actor_drama.csv', 'w', encoding='utf-8')
+drama_file = open('../all_wr_drama.csv', 'w', encoding='utf-8')
 drama_wr = csv.writer(drama_file)
-movie_file = open('../all_actor_movie.csv', 'w', encoding='utf-8')
-movie_wr = csv.writer(movie_file)
+# movie_file = open('../all_actor_movie.csv', 'w', encoding='utf-8')
+# movie_wr = csv.writer(movie_file)
 
 for line in rdr:
     actor_name = line[0]
@@ -133,41 +133,41 @@ for line in rdr:
 
 
         ## movie
-    try:
-        try:
-            page_number = body.select_one("div#fix_wrap > div#wrap > div#container > div#content_wrap > div#content > div.people_wrap > div.workact_wrap > div.workact_dsc > div > div.workact.type5 > div#pagination_78 > span.count").get_text()
-            page_number = int(page_number.split('/')[-1])
-        except:
-            page_number = 1
-        all_movie_list = []
+    # try:
+    #     try:
+    #         page_number = body.select_one("div#fix_wrap > div#wrap > div#container > div#content_wrap > div#content > div.people_wrap > div.workact_wrap > div.workact_dsc > div > div.workact.type5 > div#pagination_78 > span.count").get_text()
+    #         page_number = int(page_number.split('/')[-1])
+    #     except:
+    #         page_number = 1
+    #     all_movie_list = []
 
 
-        movie_list = body.select("div#fix_wrap > div#wrap > div#container > div#content_wrap > div#content > div.people_wrap > div.workact_wrap > div.workact_dsc > div > div.workact.type5 > ul#listUI_78 > li")
+    #     movie_list = body.select("div#fix_wrap > div#wrap > div#container > div#content_wrap > div#content > div.people_wrap > div.workact_wrap > div.workact_dsc > div > div.workact.type5 > ul#listUI_78 > li")
 
-        if movie_list != None:
-            for i in range(1, page_number+1):
-                # print(drama_list)
-                for movie in movie_list:
-                    title_wrap = movie.select_one("span.tit_wrap")
-                    title = title_wrap.get_text()
-                    link = title_wrap.select_one("a").attrs['href']
-                    status_list = movie.select("span.dsc_area > span.status_sub")
-                    role = status_list[0].get_text().split('-')[0].strip()
-                    year = status_list[1].get_text().strip()[:-1]
+    #     if movie_list != None:
+    #         for i in range(1, page_number+1):
+    #             # print(drama_list)
+    #             for movie in movie_list:
+    #                 title_wrap = movie.select_one("span.tit_wrap")
+    #                 title = title_wrap.get_text()
+    #                 link = title_wrap.select_one("a").attrs['href']
+    #                 status_list = movie.select("span.dsc_area > span.status_sub")
+    #                 role = status_list[0].get_text().split('-')[0].strip()
+    #                 year = status_list[1].get_text().strip()[:-1]
 
-                    all_movie_list.append(title)
-                    all_movie_list.append(year)
-                    all_movie_list.append(role)
+    #                 all_movie_list.append(title)
+    #                 all_movie_list.append(year)
+    #                 all_movie_list.append(role)
                     
 
-                if (i != page_number):  
-                    browser.find_element_by_id('pagination_78').find_element_by_class_name('bt_next').click()
-                    time.sleep(2)
-                    source = browser.page_source
-                    time.sleep(2)
-                    data = bs(source, 'html.parser')
-                    body = data.find('body')
-                    movie_list = body.select("div#fix_wrap > div#wrap > div#container > div#content_wrap > div#content > div.people_wrap > div.workact_wrap > div.workact_dsc > div > div.workact.type5 > ul#listUI_78 > li")
+    #             if (i != page_number):  
+    #                 browser.find_element_by_id('pagination_78').find_element_by_class_name('bt_next').click()
+    #                 time.sleep(2)
+    #                 source = browser.page_source
+    #                 time.sleep(2)
+    #                 data = bs(source, 'html.parser')
+    #                 body = data.find('body')
+    #                 movie_list = body.select("div#fix_wrap > div#wrap > div#container > div#content_wrap > div#content > div.people_wrap > div.workact_wrap > div.workact_dsc > div > div.workact.type5 > ul#listUI_78 > li")
 
 
     #     all_movie_list.reverse()
@@ -179,14 +179,14 @@ for line in rdr:
     #         print(*x, sep=',')
     #         # print(*x, sep=',', end=',')
     #     print('\n')
-        movie_wr.writerow([actor_name] + all_movie_list)
+        # movie_wr.writerow([actor_name] + all_movie_list)
 
-    except Exception as e:
-        print(actor_name, e)
-        print(traceback.format_exc())
+    # except Exception as e:
+    #     print(actor_name, e)
+    #     print(traceback.format_exc())
 
 
 url_file.close()
 award_file.close()
 drama_file.close()
-movie_file.close()
+# movie_file.close()
